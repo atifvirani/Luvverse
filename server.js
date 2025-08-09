@@ -16,6 +16,15 @@ app.use(session({
   cookie: { secure: false } // Set to true if using HTTPS
 }));
 
+// AUTO-LOGIN MIDDLEWARE (ADDED THIS)
+app.use((req, res, next) => {
+  if (!req.session.user) {
+    req.session.user = 'Atif'; // Auto-login as Atif
+    console.log('Auto-login initialized for session');
+  }
+  next();
+});
+
 // Middleware
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -34,9 +43,9 @@ const dataStore = {
   onlineUsers: []
 };
 
-// Authentication middleware
+// Authentication middleware (KEPT THIS)
 function authenticate(req, res, next) {
-  if (req.session.user || req.path === '/login.html' || req.path === '/') {
+  if (req.session.user) {
     next();
   } else {
     res.redirect('/login.html');
@@ -50,17 +59,17 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Login handling
+// Login route (KEPT BUT MODIFIED)
 app.post('/login', (req, res) => {
   const { username, password } = req.body;
   
+  // Still validate credentials but will never reach here due to auto-login
   if ((username === 'Atif' && password === 'atif123') || 
       (username === 'Adiba' && password === 'adiba123')) {
     req.session.user = username;
-    res.json({ success: true, username });
-  } else {
-    res.json({ success: false, message: 'Invalid credentials' });
+    return res.json({ success: true, username });
   }
+  res.json({ success: false, message: 'Invalid credentials' });
 });
 
 app.get('/logout', (req, res) => {
@@ -68,7 +77,7 @@ app.get('/logout', (req, res) => {
   res.redirect('/login.html');
 });
 
-// API endpoints for data
+// API endpoints (ALL KEPT ORIGINAL)
 app.post('/api/letters', (req, res) => {
   const { content } = req.body;
   const author = req.session.user;
@@ -130,13 +139,12 @@ const server = app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
-// Socket.io setup
+// Socket.io setup (ORIGINAL)
 const io = socketio(server);
 
 io.on('connection', (socket) => {
   console.log('New user connected');
   
-  // Handle user login
   socket.on('user-login', (username) => {
     if (!dataStore.onlineUsers.includes(username)) {
       dataStore.onlineUsers.push(username);
@@ -144,19 +152,16 @@ io.on('connection', (socket) => {
     io.emit('online-users', dataStore.onlineUsers);
   });
   
-  // Handle chat messages
   socket.on('send-message', (message) => {
     message.timestamp = new Date();
     dataStore.messages.push(message);
     io.emit('new-message', message);
   });
   
-  // Handle typing indicator
   socket.on('typing', (data) => {
     socket.broadcast.emit('typing', data);
   });
   
-  // Handle seen receipts
   socket.on('message-seen', (messageId) => {
     const message = dataStore.messages.find(m => m.id === messageId);
     if (message) {
@@ -165,9 +170,7 @@ io.on('connection', (socket) => {
     }
   });
   
-  // Handle disconnect
   socket.on('disconnect', () => {
     console.log('User disconnected');
-    // Note: In a real app, we'd need a more robust way to track online users
   });
 });
