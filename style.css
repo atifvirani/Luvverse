@@ -1,0 +1,480 @@
+/* Base Styles */
+:root {
+    --primary-color: #ffb6c1;
+    --secondary-color: #d8b4fe;
+    --accent-color: #d63384;
+    --background: linear-gradient(to bottom, #fff9f9, #ffe6e6);
+    --text-color: #333;
+    --light-text: #666;
+    --card-bg: #fff;
+    --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background: var(--background);
+    color: var(--text-color);
+    min-height: 100vh;
+    padding-bottom: 120px; /* Space for footer and nav */
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+h1 {
+    color: var(--accent-color);
+    font-size: 2.5rem;
+    margin-bottom: 5px;
+}
+
+.subtitle {
+    color: var(--light-text);
+    font-weight: 300;
+    font-size: 1.1rem;
+}
+
+/* Card Styles */
+.card {
+    background: var(--card-bg);
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: var(--shadow);
+    margin-bottom: 20px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* Button Styles */
+button, .button {
+    background-color: var(--accent-color);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 50px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    display: inline-block;
+    text-align: center;
+}
+
+button:hover, .button:hover {
+    background-color: #b52a6b;
+    transform: scale(1.05);
+}
+
+.add-button {
+    width: 100%;
+    margin-top: 20px;
+    font-size: 1.1rem;
+}
+
+/* Bottom Navigation */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--card-bg);
+    display: flex;
+    justify-content: space-around;
+    padding: 10px 0;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+}
+
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    color: var(--light-text);
+    padding: 5px 10px;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.nav-item.active {
+    color: var(--accent-color);
+    transform: translateY(-5px);
+}
+
+.nav-icon {
+    font-size: 1.5rem;
+    margin-bottom: 3px;
+}
+
+.nav-text {
+    font-size: 0.8rem;
+}
+
+/* Footer Styles */
+.app-footer {
+    text-align: center;
+    padding: 20px;
+    margin-top: 30px;
+    color: var(--light-text);
+    font-size: 0.9rem;
+}
+
+/* Home Page Specific Styles */
+.home-content {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.welcome-card {
+    text-align: center;
+    padding: 30px;
+}
+
+.welcome-card h2 {
+    color: var(--accent-color);
+    margin-bottom: 15px;
+}
+
+.welcome-card p {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+.heart-animation {
+    font-size: 2rem;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+.quick-links {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+}
+
+.link-card {
+    background: var(--card-bg);
+    border-radius: 15px;
+    padding: 20px 10px;
+    text-align: center;
+    box-shadow: var(--shadow);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.link-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    background: var(--primary-color);
+    color: white;
+}
+
+.link-card .icon {
+    font-size: 2rem;
+    display: block;
+    margin-bottom: 10px;
+}
+
+.link-card h3 {
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+/* Love Letters Page Styles */
+.letters-content {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.letter-card {
+    background: var(--card-bg);
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: var(--shadow);
+}
+
+.letter-date {
+    color: var(--light-text);
+    font-size: 0.8rem;
+    margin-bottom: 5px;
+}
+
+.letter-title {
+    color: var(--accent-color);
+    margin-bottom: 10px;
+}
+
+.letter-preview {
+    margin-bottom: 15px;
+    line-height: 1.5;
+}
+
+.read-more {
+    background: var(--secondary-color);
+    padding: 8px 15px;
+    font-size: 0.9rem;
+}
+
+/* Voice Notes Page Styles */
+.voice-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.voice-controls {
+    text-align: center;
+}
+
+.record-button {
+    padding: 15px 25px;
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+}
+
+.record-button .icon {
+    margin-right: 8px;
+}
+
+.visualizer {
+    height: 80px;
+    background: #f0f0f0;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--light-text);
+}
+
+.voice-notes-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.voice-note-card {
+    background: var(--card-bg);
+    border-radius: 15px;
+    padding: 15px;
+    box-shadow: var(--shadow);
+}
+
+.note-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+    color: var(--light-text);
+}
+
+.play-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.play-button {
+    padding: 8px 15px;
+    font-size: 0.9rem;
+    background: var(--secondary-color);
+}
+
+.progress-bar {
+    flex-grow: 1;
+    height: 6px;
+    background: #f0f0f0;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.progress-bar::after {
+    content: '';
+    display: block;
+    height: 100%;
+    width: 30%;
+    background: var(--secondary-color);
+}
+
+/* Memories Page Styles */
+.memory-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.memory-item {
+    aspect-ratio: 1;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    position: relative;
+}
+
+.memory-image {
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    transition: transform 0.3s ease;
+}
+
+.memory-item:hover .memory-image {
+    transform: scale(1.1);
+}
+
+.memory-caption {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    padding: 8px;
+    font-size: 0.8rem;
+    text-align: center;
+}
+
+/* Countdown Page Styles */
+.countdown-card {
+    text-align: center;
+    padding: 30px 20px;
+    margin-bottom: 30px;
+}
+
+.countdown-card h2 {
+    color: var(--accent-color);
+    margin-bottom: 20px;
+}
+
+.countdown-display {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.countdown-unit {
+    background: var(--card-bg);
+    border-radius: 10px;
+    padding: 15px 10px;
+    min-width: 70px;
+    box-shadow: var(--shadow);
+}
+
+.number {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: var(--accent-color);
+    display: block;
+}
+
+.label {
+    font-size: 0.8rem;
+    color: var(--light-text);
+}
+
+.countdown-message {
+    font-style: italic;
+    color: var(--light-text);
+    margin-top: 20px;
+}
+
+.event-settings {
+    background: var(--card-bg);
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: var(--shadow);
+}
+
+.event-settings h3 {
+    margin-bottom: 15px;
+    color: var(--accent-color);
+}
+
+.date-picker, .event-input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 50px;
+    margin-bottom: 15px;
+    font-family: inherit;
+    font-size: 1rem;
+}
+
+.save-button {
+    width: 100%;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    h1 {
+        font-size: 2rem;
+    }
+    
+    .quick-links {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .countdown-unit {
+        min-width: 60px;
+        padding: 10px 5px;
+    }
+    
+    .number {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 15px;
+    }
+    
+    .quick-links {
+        grid-template-columns: 1fr;
+    }
+    
+    .countdown-display {
+        gap: 10px;
+    }
+    
+    .countdown-unit {
+        min-width: 50px;
+    }
+    
+    .nav-icon {
+        font-size: 1.3rem;
+    }
+    
+    .nav-text {
+        font-size: 0.7rem;
+    }
+}
