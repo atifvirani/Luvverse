@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LuvVerse - Memories</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>LuvVerse</h1>
+    <div class="user-info">
+      <span id="loggedInUser"></span>
+      <a href="/logout" class="btn-logout">Logout</a>
+    </div>
+  </header>
+  
+  <main class="memories-page">
+    <h2>Our Memories</h2>
+    
+    <div class="memory-upload">
+      <input type="file" id="memoryUpload" accept="image/*" multiple>
+      <button id="uploadMemory" class="btn-upload">Upload Memories</button>
+    </div>
+    
+    <div class="memories-grid" id="memoriesGrid">
+      <!-- Memories will be loaded here -->
+    </div>
+  </main>
+  
+  <footer>
+    Made by Mohammed Atif ❤️
+  </footer>
+  
+  <script src="script.js"></script>
+</body>
+</html>

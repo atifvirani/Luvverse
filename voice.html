@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LuvVerse - Voice Notes</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>LuvVerse</h1>
+    <div class="user-info">
+      <span id="loggedInUser"></span>
+      <a href="/logout" class="btn-logout">Logout</a>
+    </div>
+  </header>
+  
+  <main class="voice-page">
+    <h2>Voice Notes</h2>
+    
+    <div class="voice-options">
+      <div class="voice-upload">
+        <h3>Upload Voice Note</h3>
+        <input type="file" id="voiceUpload" accept="audio/*">
+        <button id="uploadVoice" class="btn-upload">Upload</button>
+      </div>
+      
+      <div class="voice-record">
+        <h3>Record Voice Note</h3>
+        <button id="startRecording" class="btn-record">Start Recording</button>
+        <button id="stopRecording" class="btn-record" disabled>Stop Recording</button>
+        <audio id="recordedAudio" controls style="display: none;"></audio>
+        <button id="saveRecording" class="btn-save" disabled>Save Recording</button>
+      </div>
+    </div>
+    
+    <div class="voice-notes-container" id="voiceNotesContainer">
+      <!-- Voice notes will be loaded here -->
+    </div>
+  </main>
+  
+  <footer>
+    Made by Mohammed Atif ❤️
+  </footer>
+  
+  <script src="script.js"></script>
+</body>
+</html>

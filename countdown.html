@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LuvVerse - Countdowns</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>LuvVerse</h1>
+    <div class="user-info">
+      <span id="loggedInUser"></span>
+      <a href="/logout" class="btn-logout">Logout</a>
+    </div>
+  </header>
+  
+  <main class="countdown-page">
+    <h2>Our Countdowns</h2>
+    
+    <div class="countdown-form">
+      <input type="text" id="countdownTitle" placeholder="Event name">
+      <input type="date" id="countdownDate">
+      <button id="createCountdown" class="btn-create">Create Countdown</button>
+    </div>
+    
+    <div class="countdowns-container" id="countdownsContainer">
+      <!-- Countdowns will be loaded here -->
+    </div>
+  </main>
+  
+  <footer>
+    Made by Mohammed Atif ❤️
+  </footer>
+  
+  <script src="script.js"></script>
+</body>
+</html>
