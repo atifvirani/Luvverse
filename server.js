@@ -6,26 +6,30 @@ const MongoStore = require('connect-mongo');
 const socketio = require('socket.io');
 const multer = require('multer');
 const path = require('path');
-const fs = require('fs');
+const http = require('http');
 const { v4: uuidv4 } = require('uuid');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 // ------------------- SESSION SETUP -------------------
-app.use(session({
+const sessionMiddleware = session({
   secret: process.env.SESSION_SECRET || 'super_secret_key_change_me',
   resave: false,
   saveUninitialized: false,
-  store: MongoStore.create({
-    mongoUrl: process.env.MONGO_URI || 'mongodb://localhost:27017/luvverse_sessions',
-  }),
+  store: process.env.MONGO_URI
+    ? MongoStore.create({
+        mongoUrl: process.env.MONGO_URI,
+      })
+    : undefined,
   cookie: {
     secure: process.env.NODE_ENV === 'production',
     httpOnly: true,
-    sameSite: 'strict'
-  }
-}));
+    sameSite: 'strict',
+  },
+});
+
+app.use(sessionMiddleware);
 
 // ------------------- MIDDLEWARE -------------------
 app.use(express.urlencoded({ extended: true }));
@@ -35,14 +39,14 @@ app.use(express.static(path.join(__dirname)));
 // ------------------- FILE UPLOAD -------------------
 const upload = multer({ dest: 'uploads/' });
 
-// ------------------- TEMP DATASTORE (REPLACE WITH DB) -------------------
+// ------------------- TEMP DATASTORE -------------------
 const dataStore = {
   letters: [],
   voiceNotes: [],
   memories: [],
   countdowns: [],
   messages: [],
-  onlineUsers: []
+  onlineUsers: [],
 };
 
 // ------------------- AUTH MIDDLEWARE -------------------
@@ -53,6 +57,11 @@ function authenticate(req, res, next) {
   res.redirect('/login.html');
 }
 
+// ------------------- HEALTH CHECK (for Render) -------------------
+app.get('/health', (req, res) => {
+  res.status(200).send('OK');
+});
+
 // ------------------- ROUTES -------------------
 app.get('/', authenticate, (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
@@ -61,17 +70,17 @@ app.get('/', authenticate, (req, res) => {
 app.post('/login', (req, res) => {
   const { username, password } = req.body;
 
-  // TODO: Replace with real password check
-  if (username && password) {
+  // Hardcoded credentials
+  if (username === 'Atif' && password === 'atif') {
     req.session.user = {
       id: uuidv4(),
-      username
+      username,
     };
-    console.log(`User logged in: ${username}`);
+    console.log(`✅ User logged in: ${username}`);
     return res.redirect('/');
   }
 
-  res.status(400).send('Invalid credentials');
+  res.status(400).send('Invalid username or password');
 });
 
 app.post('/logout', (req, res) => {
@@ -85,19 +94,36 @@ app.post('/upload', authenticate, upload.single('file'), (req, res) => {
   res.json({ file: req.file });
 });
 
-// ------------------- SOCKET.IO -------------------
-const server = app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+// ------------------- CREATE HTTP SERVER -------------------
+const server = http.createServer(app);
 
+// ------------------- SOCKET.IO -------------------
 const io = socketio(server);
 
+// Integrate sessions with Socket.io
 io.use((socket, next) => {
-  const sessionID = socket.request.sessionID;
-  if (sessionID) return next();
-  next(new Error('Not authenticated'));
+  sessionMiddleware(socket.request, {}, next);
 });
 
 io.on('connection', (socket) => {
-  console.log('User connected to socket.io');
+  const session = socket.request.session;
+  if (session?.user) {
+    console.log(`Socket connected for user: ${session.user.username}`);
+    dataStore.onlineUsers.push(session.user.username);
+  } else {
+    console.log('Socket connected without user session');
+  }
+
+  socket.on('disconnect', () => {
+    if (session?.user) {
+      dataStore.onlineUsers = dataStore.onlineUsers.filter(
+        (u) => u !== session.user.username
+      );
+    }
+  });
+});
+
+// ------------------- START SERVER -------------------
+server.listen(PORT, () => {
+  console.log(`✅ Server running on port ${PORT}`);
 });
