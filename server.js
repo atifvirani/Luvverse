@@ -1,39 +1,41 @@
+// server.js
+require('dotenv').config();
 const express = require('express');
 const session = require('express-session');
+const MongoStore = require('connect-mongo');
 const socketio = require('socket.io');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const { v4: uuidv4 } = require('uuid');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Session configuration
+// ------------------- SESSION SETUP -------------------
 app.use(session({
-  secret: 'luvverse_secret_key',
+  secret: process.env.SESSION_SECRET || 'super_secret_key_change_me',
   resave: false,
   saveUninitialized: false,
-  cookie: { secure: false } // Set to true if using HTTPS
+  store: MongoStore.create({
+    mongoUrl: process.env.MONGO_URI || 'mongodb://localhost:27017/luvverse_sessions',
+  }),
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    httpOnly: true,
+    sameSite: 'strict'
+  }
 }));
 
-// AUTO-LOGIN MIDDLEWARE (ADDED THIS)
-app.use((req, res, next) => {
-  if (!req.session.user) {
-    req.session.user = 'Atif'; // Auto-login as Atif
-    console.log('Auto-login initialized for session');
-  }
-  next();
-});
-
-// Middleware
+// ------------------- MIDDLEWARE -------------------
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname)));
 
-// File upload configuration
+// ------------------- FILE UPLOAD -------------------
 const upload = multer({ dest: 'uploads/' });
 
-// Temporary in-memory storage
+// ------------------- TEMP DATASTORE (REPLACE WITH DB) -------------------
 const dataStore = {
   letters: [],
   voiceNotes: [],
@@ -43,134 +45,59 @@ const dataStore = {
   onlineUsers: []
 };
 
-// Authentication middleware (KEPT THIS)
+// ------------------- AUTH MIDDLEWARE -------------------
 function authenticate(req, res, next) {
-  if (req.session.user) {
-    next();
-  } else {
-    res.redirect('/login.html');
+  if (req.session && req.session.user) {
+    return next();
   }
+  res.redirect('/login.html');
 }
 
-app.use(authenticate);
-
-// Routes
-app.get('/', (req, res) => {
+// ------------------- ROUTES -------------------
+app.get('/', authenticate, (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Login route (KEPT BUT MODIFIED)
 app.post('/login', (req, res) => {
   const { username, password } = req.body;
-  
-  // Still validate credentials but will never reach here due to auto-login
-  if ((username === 'Atif' && password === 'atif123') || 
-      (username === 'Adiba' && password === 'adiba123')) {
-    req.session.user = username;
-    return res.json({ success: true, username });
+
+  // TODO: Replace with real password check
+  if (username && password) {
+    req.session.user = {
+      id: uuidv4(),
+      username
+    };
+    console.log(`User logged in: ${username}`);
+    return res.redirect('/');
   }
-  res.json({ success: false, message: 'Invalid credentials' });
+
+  res.status(400).send('Invalid credentials');
 });
 
-app.get('/logout', (req, res) => {
-  req.session.destroy();
-  res.redirect('/login.html');
+app.post('/logout', (req, res) => {
+  req.session.destroy(() => {
+    res.redirect('/login.html');
+  });
 });
 
-// API endpoints (ALL KEPT ORIGINAL)
-app.post('/api/letters', (req, res) => {
-  const { content } = req.body;
-  const author = req.session.user;
-  const letter = { content, author, timestamp: new Date() };
-  dataStore.letters.push(letter);
-  res.json({ success: true, letter });
+// Example upload route
+app.post('/upload', authenticate, upload.single('file'), (req, res) => {
+  res.json({ file: req.file });
 });
 
-app.get('/api/letters', (req, res) => {
-  res.json(dataStore.letters);
-});
-
-app.post('/api/voice', upload.single('voiceNote'), (req, res) => {
-  const author = req.session.user;
-  const voiceNote = {
-    filename: req.file.filename,
-    originalname: req.file.originalname,
-    author,
-    timestamp: new Date()
-  };
-  dataStore.voiceNotes.push(voiceNote);
-  res.json({ success: true, voiceNote });
-});
-
-app.get('/api/voice', (req, res) => {
-  res.json(dataStore.voiceNotes);
-});
-
-app.post('/api/memories', upload.single('memory'), (req, res) => {
-  const author = req.session.user;
-  const memory = {
-    filename: req.file.filename,
-    originalname: req.file.originalname,
-    author,
-    timestamp: new Date()
-  };
-  dataStore.memories.push(memory);
-  res.json({ success: true, memory });
-});
-
-app.get('/api/memories', (req, res) => {
-  res.json(dataStore.memories);
-});
-
-app.post('/api/countdowns', (req, res) => {
-  const { title, date } = req.body;
-  const author = req.session.user;
-  const countdown = { title, date, author, timestamp: new Date() };
-  dataStore.countdowns.push(countdown);
-  res.json({ success: true, countdown });
-});
-
-app.get('/api/countdowns', (req, res) => {
-  res.json(dataStore.countdowns);
-});
-
-// Start server
+// ------------------- SOCKET.IO -------------------
 const server = app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
-// Socket.io setup (ORIGINAL)
 const io = socketio(server);
 
+io.use((socket, next) => {
+  const sessionID = socket.request.sessionID;
+  if (sessionID) return next();
+  next(new Error('Not authenticated'));
+});
+
 io.on('connection', (socket) => {
-  console.log('New user connected');
-  
-  socket.on('user-login', (username) => {
-    if (!dataStore.onlineUsers.includes(username)) {
-      dataStore.onlineUsers.push(username);
-    }
-    io.emit('online-users', dataStore.onlineUsers);
-  });
-  
-  socket.on('send-message', (message) => {
-    message.timestamp = new Date();
-    dataStore.messages.push(message);
-    io.emit('new-message', message);
-  });
-  
-  socket.on('typing', (data) => {
-    socket.broadcast.emit('typing', data);
-  });
-  
-  socket.on('message-seen', (messageId) => {
-    const message = dataStore.messages.find(m => m.id === messageId);
-    if (message) {
-      message.seen = true;
-      io.emit('message-seen', messageId);
-    }
-  });
-  
-  socket.on('disconnect', () => {
-    console.log('User disconnected');
-  });
+  console.log('User connected to socket.io');
 });
